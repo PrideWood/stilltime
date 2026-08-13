@@ -1,3 +1,27 @@
+@font-face {
+  font-family: "DSEG7 Classic";
+  src: url("assets/fonts/DSEG7Classic-Light.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 200 300;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "DSEG7 Classic";
+  src: url("assets/fonts/DSEG7Classic-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "DSEG7 Classic";
+  src: url("assets/fonts/DSEG7Classic-Bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700 900;
+  font-display: block;
+}
+
 :root {
   color-scheme: dark;
   --surface: #111210;
@@ -20,6 +44,10 @@
   --drift-gap: 0px;
   --ambient-level: 0.96;
   --clock-scale: 1;
+  --clock-font: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  --clock-weight: 300;
+  --clock-tracking: -0.062em;
+  --clock-line-height: 0.82;
   font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   font-synthesis: none;
 }
@@ -144,13 +172,17 @@ body[data-background="drift"] {
 
 .time {
   color: var(--ink);
-  font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  font-family: var(--clock-font);
   font-size: calc(var(--clock-size) * var(--clock-scale));
-  font-weight: 300;
+  font-weight: var(--clock-weight);
   font-variant-numeric: tabular-nums lining-nums;
   font-feature-settings: "tnum" 1, "lnum" 1;
-  letter-spacing: -0.062em;
-  line-height: 0.82;
+  letter-spacing: var(--clock-tracking);
+  line-height: var(--clock-line-height);
+}
+
+body[data-font="segment"] .time {
+  font-size: calc(var(--clock-size) * var(--clock-scale) * 0.78);
 }
 
 .period,
@@ -183,6 +215,24 @@ body[data-background="drift"] {
   transition: opacity 1.8s ease, transform 16s cubic-bezier(0.42, 0, 0.22, 1);
 }
 
+.focus-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.35rem, 0.7vh, 0.65rem);
+  color: var(--ink-muted);
+  letter-spacing: 0.045em;
+}
+
+.focus-label {
+  color: color-mix(in srgb, var(--ink) 68%, var(--surface));
+  font-size: clamp(1rem, 2.05vw, 2rem);
+}
+
+.focus-status {
+  font-size: clamp(0.9rem, 1.65vw, 1.55rem);
+}
+
 .weekday {
   color: color-mix(in srgb, var(--ink) 68%, var(--surface));
   font-size: clamp(1rem, 2.05vw, 2rem);
@@ -210,6 +260,10 @@ body[data-background="drift"] {
   align-items: flex-start;
 }
 
+.clock-stage[data-layout="left"] .focus-meta {
+  align-items: flex-start;
+}
+
 .clock-stage[data-layout="right"] {
   align-items: center;
   justify-content: flex-end;
@@ -226,6 +280,12 @@ body[data-background="drift"] {
 }
 
 .clock-stage[data-layout="right"] .calendar {
+  grid-column: 2;
+  align-items: flex-start;
+  order: -1;
+}
+
+.clock-stage[data-layout="right"] .focus-meta {
   grid-column: 2;
   align-items: flex-start;
   order: -1;
@@ -419,6 +479,11 @@ body[data-background="drift"] {
   transition: background 180ms ease, color 180ms ease;
 }
 
+.font-preview--segment {
+  font-family: "DSEG7 Classic", monospace;
+  letter-spacing: 0;
+}
+
 .segmented input:checked + span {
   background: var(--control-active);
   color: var(--ink);
@@ -463,6 +528,57 @@ body[data-background="drift"] {
   transform: translateX(1.05rem);
 }
 
+.dependent-settings {
+  max-height: 14rem;
+  overflow: hidden;
+  opacity: 1;
+  transition: max-height 280ms ease, opacity 200ms ease;
+}
+
+.dependent-settings.is-disabled {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.timer-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  padding-top: 0.45rem;
+}
+
+.panel-button {
+  min-height: 2.35rem;
+  border: 0;
+  border-radius: 0.65rem;
+  background: var(--control);
+  color: var(--ink-muted);
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease;
+}
+
+.panel-button:hover,
+.panel-button:focus-visible {
+  background: var(--control-active);
+  color: var(--ink);
+}
+
+.panel-button--primary {
+  background: var(--control-active);
+  color: var(--ink);
+}
+
+.setting-note {
+  margin: 0;
+  padding: 0.5rem 0 0.15rem;
+  color: var(--ink-muted);
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
 #movementSetting[disabled] {
   opacity: 0.38;
 }
@@ -501,6 +617,11 @@ body[data-background="drift"] {
   }
 
   .clock-stage[data-layout="right"] .calendar {
+    align-items: flex-end;
+  }
+
+  .clock-stage[data-layout="right"] .focus-meta {
+    grid-column: 1;
     align-items: flex-end;
   }
 }

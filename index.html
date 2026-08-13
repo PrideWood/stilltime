@@ -21,6 +21,10 @@
             <span class="weekday" id="weekday">Thursday</span>
             <time class="date" id="date" datetime="2026-08-13">13 August 2026</time>
           </div>
+          <div class="focus-meta" id="focusMeta" hidden>
+            <span class="focus-label">Focus timer</span>
+            <span class="focus-status" id="focusStatus">Ready</span>
+          </div>
         </section>
       </div>
       <div class="rest-veil" aria-hidden="true"></div>
@@ -78,6 +82,24 @@
             </div>
           </fieldset>
           <fieldset class="setting-row setting-row--stacked">
+            <legend>Clock font</legend>
+            <div class="segmented segmented--four">
+              <label><input type="radio" name="fontFamily" value="modern" /><span>Modern</span></label>
+              <label><input type="radio" name="fontFamily" value="soft" /><span>Soft</span></label>
+              <label><input type="radio" name="fontFamily" value="mono" /><span>Mono</span></label>
+              <label><input type="radio" name="fontFamily" value="segment" /><span class="font-preview--segment">7-seg</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="setting-row setting-row--stacked">
+            <legend>Font weight</legend>
+            <div class="segmented segmented--four">
+              <label><input type="radio" name="fontWeight" value="thin" /><span>Thin</span></label>
+              <label><input type="radio" name="fontWeight" value="light" /><span>Light</span></label>
+              <label><input type="radio" name="fontWeight" value="regular" /><span>Regular</span></label>
+              <label><input type="radio" name="fontWeight" value="bold" /><span>Bold</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="setting-row setting-row--stacked">
             <legend>Layout</legend>
             <div class="segmented segmented--four">
               <label><input type="radio" name="layout" value="auto" /><span>Auto</span></label>
@@ -88,12 +110,41 @@
           </fieldset>
         </section>
 
+        <section class="settings__section" aria-labelledby="focusTimerSettings">
+          <h2 id="focusTimerSettings">Focus timer</h2>
+          <label class="setting-row setting-row--toggle">
+            <span>Use Pomodoro timer</span>
+            <input class="switch" id="focusMode" type="checkbox" />
+          </label>
+          <div class="dependent-settings" id="focusTimerControls">
+            <fieldset class="setting-row setting-row--stacked">
+              <legend>Duration</legend>
+              <div class="segmented segmented--four">
+                <label><input type="radio" name="focusMinutes" value="15" /><span>15 min</span></label>
+                <label><input type="radio" name="focusMinutes" value="25" /><span>25 min</span></label>
+                <label><input type="radio" name="focusMinutes" value="45" /><span>45 min</span></label>
+                <label><input type="radio" name="focusMinutes" value="60" /><span>60 min</span></label>
+              </div>
+            </fieldset>
+            <div class="timer-actions">
+              <button class="panel-button panel-button--primary" id="focusStartPause" type="button">Start</button>
+              <button class="panel-button" id="focusReset" type="button">Reset</button>
+            </div>
+            <p class="setting-note" id="focusPanelStatus">Ready · 25 minutes</p>
+          </div>
+        </section>
+
         <section class="settings__section" aria-labelledby="displayCareSettings">
           <h2 id="displayCareSettings">Display care</h2>
           <label class="setting-row setting-row--toggle">
             <span>Anti-static display</span>
             <input class="switch" id="antiStatic" type="checkbox" />
           </label>
+          <label class="setting-row setting-row--toggle">
+            <span>Keep screen awake</span>
+            <input class="switch" id="keepAwake" type="checkbox" />
+          </label>
+          <p class="setting-note" id="wakeLockStatus" hidden></p>
           <fieldset class="setting-row setting-row--stacked" id="movementSetting">
             <legend>Movement</legend>
             <div class="segmented">

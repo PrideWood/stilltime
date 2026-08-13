@@ -13,9 +13,17 @@
     showWeekday: true,
     theme: "dark",
     fontSize: "medium",
+    fontFamily: "modern",
+    fontWeight: "light",
     layout: "auto",
     antiStatic: true,
-    movement: "subtle"
+    movement: "subtle",
+    keepAwake: false,
+    focusMode: false,
+    focusMinutes: "25",
+    focusRunning: false,
+    focusEndTime: null,
+    focusRemainingSeconds: 25 * 60
   });
 
   const state = {
@@ -24,6 +32,7 @@
     backgroundIndex: 0,
     longSessionLevel: 0,
     settingsOpen: false,
+    wakeLock: null,
     timers: new Map()
   };
 
@@ -37,10 +46,17 @@
     calendar: document.getElementById("calendar"),
     weekday: document.getElementById("weekday"),
     date: document.getElementById("date"),
+    focusMeta: document.getElementById("focusMeta"),
+    focusStatus: document.getElementById("focusStatus"),
     settingsTrigger: document.getElementById("settingsTrigger"),
     settings: document.getElementById("settings"),
     closeSettings: document.getElementById("closeSettings"),
-    movementSetting: document.getElementById("movementSetting")
+    movementSetting: document.getElementById("movementSetting"),
+    focusTimerControls: document.getElementById("focusTimerControls"),
+    focusPanelStatus: document.getElementById("focusPanelStatus"),
+    focusStartPause: document.getElementById("focusStartPause"),
+    focusReset: document.getElementById("focusReset"),
+    wakeLockStatus: document.getElementById("wakeLockStatus")
   };
 
   function loadSettings() {
@@ -85,6 +101,11 @@
   }
 
   function updateClock() {
+    if (state.settings.focusMode) {
+      updateFocusTimer();
+      return;
+    }
+
     const now = new Date();
     const use12Hour = state.settings.hourFormat === "12";
     let hours = now.getHours();
@@ -118,11 +139,13 @@
   }
 
   function applyVisibility() {
-    elements.seconds.hidden = !state.settings.showSeconds;
-    elements.period.hidden = state.settings.hourFormat !== "12";
-    elements.weekday.hidden = !state.settings.showWeekday;
-    elements.date.hidden = !state.settings.showDate;
-    elements.calendar.hidden = !state.settings.showDate && !state.settings.showWeekday;
+    const focusMode = state.settings.focusMode;
+    elements.seconds.hidden = focusMode || !state.settings.showSeconds;
+    elements.period.hidden = focusMode || state.settings.hourFormat !== "12";
+    elements.weekday.hidden = focusMode || !state.settings.showWeekday;
+    elements.date.hidden = focusMode || !state.settings.showDate;
+    elements.calendar.hidden = focusMode || (!state.settings.showDate && !state.settings.showWeekday);
+    elements.focusMeta.hidden = !focusMode;
   }
 
   function applyTheme() {
@@ -136,6 +159,134 @@
   function applyFontSize() {
     const multiplier = { small: 0.84, medium: 1, large: 1.14 }[state.settings.fontSize] || 1;
     document.documentElement.style.setProperty("--clock-scale", String(multiplier));
+  }
+
+  function applyTypography() {
+    const families = {
+      modern: '"Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif',
+      soft: '"Trebuchet MS", "Segoe UI", system-ui, sans-serif',
+      mono: '"Cascadia Mono", "Consolas", "SFMono-Regular", monospace',
+      segment: '"DSEG7 Classic", monospace'
+    };
+    const weights = { thin: 200, light: 300, regular: 400, bold: 700 };
+    const tracking = { modern: "-0.062em", soft: "-0.045em", mono: "-0.075em", segment: "0.035em" };
+    const root = document.documentElement;
+
+    elements.body.dataset.font = state.settings.fontFamily;
+    root.style.setProperty("--clock-font", families[state.settings.fontFamily] || families.modern);
+    root.style.setProperty("--clock-weight", String(weights[state.settings.fontWeight] || 300));
+    root.style.setProperty("--clock-tracking", tracking[state.settings.fontFamily] || tracking.modern);
+    root.style.setProperty("--clock-line-height", state.settings.fontFamily === "segment" ? "1" : "0.82");
+  }
+
+  function focusDurationSeconds() {
+    return (Number.parseInt(state.settings.focusMinutes, 10) || 25) * 60;
+  }
+
+  function normalizeFocusState() {
+    const duration = focusDurationSeconds();
+    const remaining = Number(state.settings.focusRemainingSeconds);
+    if (!Number.isFinite(remaining) || remaining < 0) {
+      state.settings.focusRemainingSeconds = duration;
+    }
+    if (state.settings.focusRunning && !Number.isFinite(Number(state.settings.focusEndTime))) {
+      state.settings.focusRunning = false;
+      state.settings.focusEndTime = null;
+    }
+  }
+
+  function focusRemainingSeconds() {
+    if (!state.settings.focusRunning) return Math.max(0, Math.ceil(state.settings.focusRemainingSeconds));
+    return Math.max(0, Math.ceil((Number(state.settings.focusEndTime) - Date.now()) / 1000));
+  }
+
+  function focusStatusText(remaining) {
+    if (remaining === 0) return "Complete";
+    if (state.settings.focusRunning) return "Focusing";
+    if (remaining < focusDurationSeconds()) return "Paused";
+    return "Ready";
+  }
+
+  function updateFocusTimer() {
+    const remaining = focusRemainingSeconds();
+    if (state.settings.focusRunning && remaining === 0) {
+      state.settings.focusRunning = false;
+      state.settings.focusEndTime = null;
+      state.settings.focusRemainingSeconds = 0;
+      saveSettings();
+    }
+
+    const minutes = Math.floor(remaining / 60);
+    const seconds = remaining % 60;
+    const status = focusStatusText(remaining);
+
+    elements.time.textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    elements.time.dateTime = `PT${remaining}S`;
+    elements.focusStatus.textContent = status;
+    elements.focusPanelStatus.textContent = `${status} · ${minutes}:${String(seconds).padStart(2, "0")}`;
+    elements.focusStartPause.textContent = state.settings.focusRunning ? "Pause" : remaining === 0 ? "Restart" : "Start";
+
+    const delay = state.settings.focusRunning && remaining > 0 ? 1000 - (Date.now() % 1000) + 25 : 60000;
+    setTimer("clock", updateClock, delay);
+  }
+
+  function startPauseFocusTimer() {
+    let remaining = focusRemainingSeconds();
+    if (state.settings.focusRunning) {
+      state.settings.focusRunning = false;
+      state.settings.focusEndTime = null;
+      state.settings.focusRemainingSeconds = remaining;
+    } else {
+      if (remaining === 0) remaining = focusDurationSeconds();
+      state.settings.focusRemainingSeconds = remaining;
+      state.settings.focusEndTime = Date.now() + remaining * 1000;
+      state.settings.focusRunning = true;
+    }
+    saveSettings();
+    updateClock();
+  }
+
+  function resetFocusTimer() {
+    state.settings.focusRunning = false;
+    state.settings.focusEndTime = null;
+    state.settings.focusRemainingSeconds = focusDurationSeconds();
+    saveSettings();
+    updateClock();
+  }
+
+  function setWakeStatus(message) {
+    elements.wakeLockStatus.textContent = message;
+    elements.wakeLockStatus.hidden = !message;
+  }
+
+  async function updateWakeLock() {
+    if (!state.settings.keepAwake) {
+      if (state.wakeLock) {
+        const lock = state.wakeLock;
+        state.wakeLock = null;
+        await lock.release().catch(() => {});
+      }
+      setWakeStatus("");
+      return;
+    }
+
+    if (!("wakeLock" in navigator)) {
+      setWakeStatus("Not available in this browser or local-file mode.");
+      return;
+    }
+    if (document.visibilityState !== "visible" || state.wakeLock) return;
+
+    try {
+      const lock = await navigator.wakeLock.request("screen");
+      state.wakeLock = lock;
+      setWakeStatus("Screen wake lock active.");
+      lock.addEventListener("release", () => {
+        if (state.wakeLock === lock) state.wakeLock = null;
+        if (state.settings.keepAwake) setWakeStatus("Paused while the page is not active.");
+      }, { once: true });
+    } catch {
+      setWakeStatus("Could not keep the screen awake. Check browser permissions.");
+    }
   }
 
   function applyLayout(immediate = false) {
@@ -267,9 +418,11 @@
     applyVisibility();
     applyTheme();
     applyFontSize();
+    applyTypography();
     applyLayout(Boolean(options.immediate));
     resetAntiStatic();
     updateClock();
+    updateWakeLock();
     syncControls();
   }
 
@@ -281,7 +434,11 @@
     document.getElementById("showDate").checked = state.settings.showDate;
     document.getElementById("showWeekday").checked = state.settings.showWeekday;
     document.getElementById("antiStatic").checked = state.settings.antiStatic;
+    document.getElementById("keepAwake").checked = state.settings.keepAwake;
+    document.getElementById("focusMode").checked = state.settings.focusMode;
     elements.movementSetting.disabled = !state.settings.antiStatic;
+    elements.focusTimerControls.classList.toggle("is-disabled", !state.settings.focusMode);
+    elements.focusTimerControls.setAttribute("aria-hidden", String(!state.settings.focusMode));
   }
 
   function openSettings() {
@@ -319,6 +476,17 @@
     } else {
       state.settings[input.id] = input.checked;
     }
+
+    if (input.name === "focusMinutes") resetFocusTimer();
+    if (input.id === "focusMode") {
+      if (input.checked) {
+        state.settings.focusRemainingSeconds = focusDurationSeconds();
+      } else if (state.settings.focusRunning) {
+        state.settings.focusRemainingSeconds = focusRemainingSeconds();
+      }
+      state.settings.focusRunning = false;
+      state.settings.focusEndTime = null;
+    }
     saveSettings();
     applySettings();
   }
@@ -343,6 +511,8 @@
   elements.settings.addEventListener("pointerenter", () => clearNamedTimer("settingsHide"));
   elements.settings.addEventListener("pointerleave", () => setTimer("settingsHide", closeSettings, 500));
   elements.closeSettings.addEventListener("click", closeSettings);
+  elements.focusStartPause.addEventListener("click", startPauseFocusTimer);
+  elements.focusReset.addEventListener("click", resetFocusTimer);
 
   document.addEventListener("dblclick", (event) => {
     if (!elements.settings.contains(event.target)) attemptFullscreen();
@@ -390,15 +560,21 @@
   });
 
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) updateClock();
+    if (!document.hidden) {
+      updateClock();
+      updateWakeLock();
+    }
   });
 
   window.addEventListener("pagehide", () => {
+    if (state.settings.focusRunning) saveSettings();
+    if (state.wakeLock) state.wakeLock.release().catch(() => {});
     state.timers.forEach((timer) => window.clearTimeout(timer));
     state.timers.clear();
   }, { once: true });
 
   state.currentLayout = "center";
+  normalizeFocusState();
   applySettings({ immediate: true });
   scheduleBackground(true);
   scheduleLongSessionMode();

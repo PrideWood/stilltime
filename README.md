@@ -11,6 +11,8 @@ Stilltime is a quiet, low-power ambient clock designed for a secondary display �
 
 No server, account, build step, font download, API, or network connection is needed. Settings use `localStorage` when the browser permits it; if storage is unavailable under `file://`, the clock continues with its defaults.
 
+The optional seven-segment clock face uses the bundled DSEG7 Classic font by Keshikan under the SIL Open Font License 1.1; its license is included in `assets/fonts/DSEG-LICENSE.txt`.
+
 ## Controls
 
 The clock starts immediately with a clean screen. Move the pointer into the narrow strip at the far-right edge, or use a shortcut, to reveal settings. The panel closes half a second after the pointer leaves it.
@@ -26,6 +28,12 @@ The clock starts immediately with a clean screen. Move the pointer into the narr
 | `Esc` | Close settings |
 
 Double-clicking the empty clock area also requests webpage fullscreen. Browser security rules may reject that request; F11 remains the most reliable option on Windows.
+
+## Optional focus and screen controls
+
+The original clock remains the default. Enable **Use Pomodoro timer** in settings to replace it with a 25-minute focus countdown, with optional 15, 45, and 60-minute durations and pause/reset controls. Turning the mode off restores the normal clock immediately.
+
+**Keep screen awake** uses the browser Screen Wake Lock API. Current Edge and Chrome builds generally require a secure page and may pause the lock when the tab is hidden. Stilltime automatically asks again when the page becomes visible; unsupported browsers and restricted `file://` sessions show a status message and continue normally.
 
 ## Display care
 
@@ -56,6 +64,7 @@ stilltime/
 ├── index.html
 ├── style.css
 ├── app.js
+├── assets/fonts/
 └── README.md
 ```
 
