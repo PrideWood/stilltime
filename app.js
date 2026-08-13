@@ -37,6 +37,7 @@
     calendar: document.getElementById("calendar"),
     weekday: document.getElementById("weekday"),
     date: document.getElementById("date"),
+    settingsTrigger: document.getElementById("settingsTrigger"),
     settings: document.getElementById("settings"),
     closeSettings: document.getElementById("closeSettings"),
     movementSetting: document.getElementById("movementSetting")
@@ -283,12 +284,11 @@
     elements.movementSetting.disabled = !state.settings.antiStatic;
   }
 
-  function openSettings(autoClose = false) {
+  function openSettings() {
     state.settingsOpen = true;
     elements.settings.classList.add("is-open");
     elements.settings.setAttribute("aria-hidden", "false");
     clearNamedTimer("settingsHide");
-    if (autoClose) setTimer("settingsHide", closeSettings, 7000);
   }
 
   function closeSettings() {
@@ -302,10 +302,9 @@
     state.settingsOpen ? closeSettings() : openSettings();
   }
 
-  function showCursorAndControls(event) {
+  function showCursor() {
     elements.body.classList.remove("is-idle");
     setTimer("cursorHide", () => elements.body.classList.add("is-idle"), 2000);
-    if (event?.pointerType !== "touch" && !state.settingsOpen) openSettings(true);
   }
 
   function attemptFullscreen() {
@@ -329,14 +328,20 @@
     if (input instanceof HTMLInputElement) updateSettingFromInput(input);
   });
 
-  document.addEventListener("pointermove", showCursorAndControls, { passive: true });
+  document.addEventListener("pointermove", showCursor, { passive: true });
   document.addEventListener("pointerdown", () => {
     elements.body.classList.remove("is-idle");
     setTimer("cursorHide", () => elements.body.classList.add("is-idle"), 2000);
   }, { passive: true });
 
+  elements.settingsTrigger.addEventListener("pointerenter", (event) => {
+    if (event.pointerType !== "touch") openSettings();
+  });
+  elements.settingsTrigger.addEventListener("pointerleave", () => {
+    if (state.settingsOpen) setTimer("settingsHide", closeSettings, 500);
+  });
   elements.settings.addEventListener("pointerenter", () => clearNamedTimer("settingsHide"));
-  elements.settings.addEventListener("pointerleave", () => setTimer("settingsHide", closeSettings, 3000));
+  elements.settings.addEventListener("pointerleave", () => setTimer("settingsHide", closeSettings, 500));
   elements.closeSettings.addEventListener("click", closeSettings);
 
   document.addEventListener("dblclick", (event) => {

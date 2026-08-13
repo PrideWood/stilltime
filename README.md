@@ -13,7 +13,7 @@ No server, account, build step, font download, API, or network connection is nee
 
 ## Controls
 
-The clock starts immediately with a clean screen. Move the pointer or use a shortcut to reveal settings.
+The clock starts immediately with a clean screen. Move the pointer into the narrow strip at the far-right edge, or use a shortcut, to reveal settings. The panel closes half a second after the pointer leaves it.
 
 | Key | Action |
 | --- | --- |
