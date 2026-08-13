@@ -11,6 +11,10 @@ Stilltime is a quiet, low-power ambient clock designed for a secondary display â
 
 No server, account, build step, font download, API, or network connection is needed. Settings use `localStorage` when the browser permits it; if storage is unavailable under `file://`, the clock continues with its defaults.
 
+For Windows, the downloadable portable package includes a double-click launcher that opens Stilltime in Edge or Chrome Kiosk fullscreen mode and runs the page entirely offline. Extract the complete ZIP, run `Start-Stilltime.cmd`, and press **Alt+F4** to exit.
+
+Windows portable releases are available from the repository's [Releases](https://github.com/PrideWood/stilltime/releases). Maintainers can reproduce a package with `./scripts/build-windows-package.sh <version>`.
+
 The optional seven-segment clock face uses the bundled DSEG7 Classic font by Keshikan under the SIL Open Font License 1.1; its license is included in `assets/fonts/DSEG-LICENSE.txt`.
 
 ## Controls
