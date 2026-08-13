@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#111210" />
+    <title>Stilltime</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body data-theme="dark" data-background="solid">
+    <main class="ambient" id="ambient" aria-label="Ambient clock">
+      <div class="clock-stage" id="clockStage" data-layout="center">
+        <section class="clock-shell" aria-label="Current time and date">
+          <div class="time-row">
+            <time class="time" id="time" datetime="">10:42</time>
+            <span class="period" id="period" hidden>AM</span>
+            <span class="seconds" id="seconds" hidden>08</span>
+          </div>
+          <div class="calendar" id="calendar">
+            <span class="weekday" id="weekday">Thursday</span>
+            <time class="date" id="date" datetime="2026-08-13">13 August 2026</time>
+          </div>
+        </section>
+      </div>
+      <div class="rest-veil" aria-hidden="true"></div>
+    </main>
+
+    <aside class="settings" id="settings" aria-labelledby="settingsTitle" aria-hidden="true">
+      <div class="settings__header">
+        <h1 id="settingsTitle">Settings</h1>
+        <button class="close-button" id="closeSettings" type="button" aria-label="Close settings">×</button>
+      </div>
+
+      <div class="settings__scroll">
+        <section class="settings__section" aria-labelledby="timeSettings">
+          <h2 id="timeSettings">Time</h2>
+          <fieldset class="setting-row">
+            <legend>Clock format</legend>
+            <div class="segmented">
+              <label><input type="radio" name="hourFormat" value="24" /><span>24 hour</span></label>
+              <label><input type="radio" name="hourFormat" value="12" /><span>12 hour</span></label>
+            </div>
+          </fieldset>
+          <label class="setting-row setting-row--toggle">
+            <span>Show seconds</span>
+            <input class="switch" id="showSeconds" type="checkbox" />
+          </label>
+          <label class="setting-row setting-row--toggle">
+            <span>Show date</span>
+            <input class="switch" id="showDate" type="checkbox" />
+          </label>
+          <label class="setting-row setting-row--toggle">
+            <span>Show weekday</span>
+            <input class="switch" id="showWeekday" type="checkbox" />
+          </label>
+        </section>
+
+        <section class="settings__section" aria-labelledby="appearanceSettings">
+          <h2 id="appearanceSettings">Appearance</h2>
+          <fieldset class="setting-row setting-row--stacked">
+            <legend>Theme</legend>
+            <div class="segmented segmented--four">
+              <label><input type="radio" name="theme" value="dark" /><span>Dark</span></label>
+              <label><input type="radio" name="theme" value="warm" /><span>Warm</span></label>
+              <label><input type="radio" name="theme" value="light" /><span>Light</span></label>
+              <label><input type="radio" name="theme" value="auto" /><span>Auto</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="setting-row setting-row--stacked">
+            <legend>Clock size</legend>
+            <div class="segmented">
+              <label><input type="radio" name="fontSize" value="small" /><span>Small</span></label>
+              <label><input type="radio" name="fontSize" value="medium" /><span>Medium</span></label>
+              <label><input type="radio" name="fontSize" value="large" /><span>Large</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="setting-row setting-row--stacked">
+            <legend>Layout</legend>
+            <div class="segmented segmented--four">
+              <label><input type="radio" name="layout" value="auto" /><span>Auto</span></label>
+              <label><input type="radio" name="layout" value="center" /><span>Center</span></label>
+              <label><input type="radio" name="layout" value="left" /><span>Left</span></label>
+              <label><input type="radio" name="layout" value="right" /><span>Right</span></label>
+            </div>
+          </fieldset>
+        </section>
+
+        <section class="settings__section" aria-labelledby="displayCareSettings">
+          <h2 id="displayCareSettings">Display care</h2>
+          <label class="setting-row setting-row--toggle">
+            <span>Anti-static display</span>
+            <input class="switch" id="antiStatic" type="checkbox" />
+          </label>
+          <fieldset class="setting-row setting-row--stacked" id="movementSetting">
+            <legend>Movement</legend>
+            <div class="segmented">
+              <label><input type="radio" name="movement" value="subtle" /><span>Subtle</span></label>
+              <label><input type="radio" name="movement" value="normal" /><span>Normal</span></label>
+            </div>
+          </fieldset>
+        </section>
+      </div>
+
+      <p class="settings__hint">S / Space to close · F for fullscreen</p>
+    </aside>
+
+    <script src="app.js"></script>
+  </body>
+</html>
