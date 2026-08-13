@@ -335,7 +335,7 @@ body[data-font="segment"] .time {
   max-height: calc(100dvh - 2.5rem);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: clip;
   border: 1px solid var(--panel-line);
   border-radius: 1.25rem;
   background: var(--panel);
@@ -358,6 +358,7 @@ body[data-font="segment"] .time {
 }
 
 .settings__header {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -393,8 +394,11 @@ body[data-font="segment"] .time {
 }
 
 .settings__scroll {
+  min-height: 0;
+  flex: 1 1 auto;
   padding: 0 1.25rem;
   overflow: auto;
+  overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: var(--control-active) transparent;
 }
@@ -584,6 +588,7 @@ body[data-font="segment"] .time {
 }
 
 .settings__hint {
+  flex: 0 0 auto;
   margin: 0;
   padding: 0.85rem 1.25rem 1rem;
   color: var(--ink-muted);

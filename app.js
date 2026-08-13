@@ -445,7 +445,12 @@
     state.settingsOpen = true;
     elements.settings.classList.add("is-open");
     elements.settings.setAttribute("aria-hidden", "false");
+    elements.settings.scrollTop = 0;
     clearNamedTimer("settingsHide");
+  }
+
+  function lockSettingsShellScroll() {
+    if (elements.settings.scrollTop !== 0) elements.settings.scrollTop = 0;
   }
 
   function closeSettings() {
@@ -493,7 +498,10 @@
 
   document.addEventListener("change", (event) => {
     const input = event.target;
-    if (input instanceof HTMLInputElement) updateSettingFromInput(input);
+    if (input instanceof HTMLInputElement) {
+      updateSettingFromInput(input);
+      lockSettingsShellScroll();
+    }
   });
 
   document.addEventListener("pointermove", showCursor, { passive: true });
@@ -510,6 +518,7 @@
   });
   elements.settings.addEventListener("pointerenter", () => clearNamedTimer("settingsHide"));
   elements.settings.addEventListener("pointerleave", () => setTimer("settingsHide", closeSettings, 500));
+  elements.settings.addEventListener("scroll", lockSettingsShellScroll, { passive: true });
   elements.closeSettings.addEventListener("click", closeSettings);
   elements.focusStartPause.addEventListener("click", startPauseFocusTimer);
   elements.focusReset.addEventListener("click", resetFocusTimer);
